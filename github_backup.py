@@ -2,6 +2,7 @@
 import argparse
 import json
 import logging
+import logging.handlers
 import os
 import subprocess
 import sys
@@ -22,10 +23,8 @@ def setup_logger():
     stream_handler.setFormatter(stream_formatter)
     logger.addHandler(stream_handler)
     
-    file_handler = logging.FileHandler('github_backup.log')
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+    syslog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
+    logger.addHandler(syslog_handler)
     
     return logger
 
