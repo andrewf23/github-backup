@@ -18,11 +18,6 @@ def setup_logger():
     logger = logging.getLogger('github_backup')
     logger.setLevel(logging.DEBUG)
     
-    stream_handler = logging.StreamHandler()
-    stream_formatter = logging.Formatter('%(message)s')
-    stream_handler.setFormatter(stream_formatter)
-    logger.addHandler(stream_handler)
-    
     syslog_handler = logging.handlers.SysLogHandler(address = '/dev/log')
     logger.addHandler(syslog_handler)
     
