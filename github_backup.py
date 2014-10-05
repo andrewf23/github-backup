@@ -32,6 +32,12 @@ def git_installed():
         return False
     return True
 
+def user_organizations(user):
+    url = 'https://api.github.com/users/' + user + '/orgs'
+    response = urllib2.urlopen(url).read().decode('utf-8')
+    repositories = json.loads(response)
+    return [repository['login'] for repository in repositories]
+
 def user_repositories(user):
     url = 'https://api.github.com/users/' + user + '/repos'
     while url:
@@ -54,7 +60,7 @@ def clone_repository(url, directory):
 def update_repository(directory):
     cwd = os.getcwd()
     os.chdir(directory)
-    subprocess.call(['git', 'fetch', 'origin'],
+    subprocess.call(['git', 'pull'],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     os.chdir(cwd)
 
@@ -85,19 +91,20 @@ if not os.path.exists(args.root):
     os.makedirs(args.root)
 
 updates, clones = 0, 0
-for name, url in user_repositories(args.user):
-    directory = os.path.realpath(os.path.join(args.root, name))   
-    while (os.path.exists(directory)
-           and not is_tracking_repository(directory, url)):
-        directory += '_'
 
-    if os.path.exists(directory):
-        logger.info('Updating {0}...'.format(name))
-        update_repository(directory)
-        updates += 1
-    else:
-        logger.info('Cloning {0}...'.format(name))
-        clone_repository(url, directory)
-        clones += 1
+for user in user_organizations(args.user) + [args.user]:
+    print user
+    for name, url in user_repositories(user):
+
+        directory = os.path.realpath(os.path.join(args.root, name))   
+    
+        if os.path.exists(directory):
+            logger.info('Updating {0}...'.format(name))
+            update_repository(directory)
+            updates += 1
+        else:
+            logger.info('Cloning {0}...'.format(name))
+            clone_repository(url, directory)
+            clones += 1
         
 logger.info('{0} new repositories, {1} updated.'.format(clones, updates))
