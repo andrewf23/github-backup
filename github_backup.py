@@ -93,7 +93,6 @@ if not os.path.exists(args.root):
 updates, clones = 0, 0
 
 for user in user_organizations(args.user) + [args.user]:
-    print user
     for name, url in user_repositories(user):
 
         directory = os.path.realpath(os.path.join(args.root, name))   
